@@ -28,7 +28,7 @@ namespace OctovanAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton(x=>new BlobServiceClient(Configuration.GetValue<string>("AzureBlobStorageConnectionString")));
+            services.AddSingleton(x=>new BlobServiceClient(Configuration.GetValue<string>("ConnectionStrings:AzureBlobStorageConnectionString")));
             services.AddSingleton<IBlobService, BlobService>();
         }
 

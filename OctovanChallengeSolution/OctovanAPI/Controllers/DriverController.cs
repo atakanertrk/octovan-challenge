@@ -26,33 +26,35 @@ namespace OctovanAPI.Controllers
             int driverId = _dataAccess.InsertDriver(driver);
             return Ok(new { driverId = driverId});
         }
+
         [HttpDelete]
         public IActionResult DeleteDriver([FromQuery] int driverId)
         {
+            _dataAccess.DeleteAllTasksOfDriver(driverId);
             _dataAccess.DeleteDriver(driverId);
             return Ok();
         }
 
-        [HttpPost]
-        public IActionResult SignIn([FromBody] string PhoneNumber)
+        [HttpGet]
+        public IActionResult GetAllDrivers()
         {
-            int returnedId = _dataAccess.IsDriverExistByPhoneNumber(PhoneNumber);
+            var result = _dataAccess.GetAllDrivers();
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public IActionResult SignIn([FromBody] SignIn signin)
+        {
+            int returnedId = _dataAccess.IsDriverExistByPhoneNumber(signin.PhoneNumber);
             if (returnedId > 0)
             {
-                return Ok();
+                return Ok(new { driverId = returnedId });
             }
             else if (returnedId == 0)
             {
                 return Unauthorized();
             }
             return BadRequest();
-        }
-
-        [HttpPost]
-        public IActionResult AssignToTask([FromBody] TaskIdAndDriverId ids)
-        {
-            _dataAccess.UpdateTaskAddDriver(ids.TaskId, ids.DriverId);
-            return Ok();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace OctovanAPI.Models
 {
     public class DeleteImageDTO
     {
-        public string TaskId { get; set; }
+        public int TaskId { get; set; }
         public string FileName { get; set; }
     }
 }

@@ -9,6 +9,7 @@ namespace OctovanAPI.Services
         Task DeleteBlobAsync(string blobName, string containerName);
         Task<BlobInfo> GetBlobAsync(string blobName, string containerName);
         Task<IEnumerable<string>> ListBlobsAsync(string containerName);
+        Task<IEnumerable<string>> ListBlobsUrlAsync(string containerName);
         Task UploadFileBlobAsync(string filePath, string fileName, string containerName);
     }
 }

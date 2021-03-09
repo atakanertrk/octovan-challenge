@@ -33,6 +33,7 @@ namespace OctovanAPI.DataAccess
                 return cnn.Query<int>(sql, p).ToList().First();
             }
         }
+
         public int InsertDriver(DriverDTO driver)
         {
             using (IDbConnection cnn = new SqlConnection(_conStr))
@@ -46,6 +47,7 @@ namespace OctovanAPI.DataAccess
                 return cnn.Query<int>(sql, p).ToList().First();
             }
         }
+
         public void DeleteUser(int id)
         {
             using (IDbConnection cnn = new SqlConnection(_conStr))
@@ -58,6 +60,7 @@ namespace OctovanAPI.DataAccess
                 cnn.Execute(sql, p);
             }
         }
+
         public void DeleteDriver(int id)
         {
             using (IDbConnection cnn = new SqlConnection(_conStr))
@@ -70,6 +73,29 @@ namespace OctovanAPI.DataAccess
                 cnn.Execute(sql, p);
             }
         }
+
+        public List<UserModel> GetAllUsers()
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                string sql = "SELECT * FROM Users;";
+
+                var result = cnn.Query<UserModel>(sql).ToList();
+                return result;
+            }
+        }
+
+        public List<DriverModel> GetAllDrivers()
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                string sql = "SELECT * FROM Drivers;";
+
+                var result = cnn.Query<DriverModel>(sql).ToList();
+                return result;
+            }
+        }
+
         /// <summary>
         /// returns 0 if user not exist, otherwise returns user id
         /// </summary>
@@ -83,9 +109,10 @@ namespace OctovanAPI.DataAccess
                 string sql = "SELECT Id FROM Users WHERE PhoneNumber=@PhoneNumber;";
 
                 int result = cnn.Query<int>(sql, p).ToList().FirstOrDefault();
-                return result; 
+                return result;
             }
         }
+
         /// <summary>
         /// returns 0 if driver not exist, otherwise returns user id
         /// </summary>
@@ -102,7 +129,8 @@ namespace OctovanAPI.DataAccess
                 return result;
             }
         }
-        public void InsertNewTask(TaskModel task)
+
+        public int InsertNewTask(TaskModel task)
         {
             using (IDbConnection cnn = new SqlConnection(_conStr))
             {
@@ -110,11 +138,58 @@ namespace OctovanAPI.DataAccess
                 p.Add("@Description", task.Description);
                 p.Add("@CreatedAt", task.CreatedAt);
                 p.Add("@UserId", task.UserId);
-                string sql = "INSER INTO Tasks (Description,CreatedAt,UserId) VALEUS (@Description,@CreatedAt,@UserId);";
+                string sql = "INSERT INTO Tasks ([Description],CreatedAt,UserId) VALUES (@Description,@CreatedAt,@UserId); SELECT SCOPE_IDENTITY();";
 
-                cnn.Execute(sql,p);
+                int result = cnn.Query<int>(sql, p).ToList().FirstOrDefault();
+                return result;
             }
         }
+
+        /// <summary>
+        /// deletes all tasks which includes given UserId
+        /// </summary>
+        public void DeleteAllTasksOfUser(int userId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@UserId", userId);
+
+                string sql = "DELETE FROM Tasks WHERE UserId=@UserId;";
+
+                cnn.Execute(sql, p);
+            }
+        }
+
+        public void DeleteTaskByTaskId(int taskId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@Id", taskId);
+
+                string sql = "DELETE FROM Tasks WHERE Id=@Id;";
+
+                cnn.Execute(sql, p);
+            }
+        }
+
+        /// <summary>
+        /// deletes all tasks which includes given DiverId
+        /// </summary>
+        public void DeleteAllTasksOfDriver(int driverId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@DriverId", driverId);
+
+                string sql = "DELETE FROM Tasks WHERE DriverId=@DriverId;";
+
+                cnn.Execute(sql, p);
+            }
+        }
+
         /// <summary>
         /// Sets DriverId to existing Task by TaskId
         /// </summary>
@@ -129,5 +204,6 @@ namespace OctovanAPI.DataAccess
                 cnn.Execute(sql, p);
             }
         }
+
     }
 }
