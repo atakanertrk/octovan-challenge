@@ -27,14 +27,6 @@ namespace OctovanAPI.Controllers
             return Ok(new { driverId = driverId});
         }
 
-        [HttpDelete]
-        public IActionResult DeleteDriver([FromQuery] int driverId)
-        {
-            _dataAccess.DeleteAllTasksOfDriver(driverId);
-            _dataAccess.DeleteDriver(driverId);
-            return Ok();
-        }
-
         [HttpGet]
         public IActionResult GetAllDrivers()
         {

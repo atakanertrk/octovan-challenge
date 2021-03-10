@@ -36,15 +36,23 @@ namespace OctovanAPI.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteImageFromTask([FromBody] DeleteImageDTO delete)
         {
-            await _blobService.DeleteBlobAsync(delete.FileName, delete.TaskId.ToString());
-            return Ok();
+            if (_dataAccess.IsTaskExistById(delete.TaskId))
+            {
+                await _blobService.DeleteBlobAsync(delete.FileName, delete.TaskId.ToString());
+                return Ok();
+            }
+            return BadRequest();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetImagesOfTask([FromQuery] int taskId)
         {
-            var listOfTaskImages = await _blobService.ListBlobsUrlAsync(taskId.ToString());
-            return Ok(listOfTaskImages);
+            if (_dataAccess.IsTaskExistById(taskId))
+            {
+                var listOfTaskImages = await _blobService.ListBlobsUrlAsync(taskId.ToString());
+                return Ok(listOfTaskImages);
+            }
+            return BadRequest();
         }
 
         [HttpGet]
@@ -57,27 +65,30 @@ namespace OctovanAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadImageForTask([FromQuery] int taskId)
         {
-            string fileName = "";
-            var files = HttpContext.Request.Form.Files;
-            if (HttpContext.Request.Form.Files != null)
+            if (_dataAccess.IsTaskExistById(taskId))
             {
-                if (files[0].Length > 0)
+                string fileName = "";
+                var files = HttpContext.Request.Form.Files;
+                if (HttpContext.Request.Form.Files != null)
                 {
-                    fileName = files[0].FileName;
-                    var containerClient = _blobServiceClient.GetBlobContainerClient("taskid-" + taskId.ToString());
-                    var blobClient = containerClient.GetBlobClient(fileName);
-                    using (var ms = new MemoryStream())
+                    if (files[0].Length > 0)
                     {
-                        files[0].CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        string s = Convert.ToBase64String(fileBytes);
-                        using (var ms2 = new MemoryStream(fileBytes))
+                        fileName = files[0].FileName;
+                        var containerClient = _blobServiceClient.GetBlobContainerClient("taskid-" + taskId.ToString());
+                        var blobClient = containerClient.GetBlobClient(fileName);
+                        using (var ms = new MemoryStream())
                         {
-                            await blobClient.UploadAsync(ms2, new BlobHttpHeaders { ContentType = "application/octet-stream" });
+                            files[0].CopyTo(ms);
+                            var fileBytes = ms.ToArray();
+                            string s = Convert.ToBase64String(fileBytes);
+                            using (var ms2 = new MemoryStream(fileBytes))
+                            {
+                                await blobClient.UploadAsync(ms2, new BlobHttpHeaders { ContentType = "application/octet-stream" });
+                            }
                         }
                     }
+                    return Ok();
                 }
-                return Ok();
             }
             return BadRequest();
         }
@@ -93,7 +104,7 @@ namespace OctovanAPI.Controllers
             if (createdTaskId != 0)
             {
                 await _blobService.CreateContainerForTask(createdTaskId.ToString());
-                return Ok(new { createdTaskId = createdTaskId});
+                return Ok(new { createdTaskId = createdTaskId });
             }
             return BadRequest();
         }
@@ -101,15 +112,23 @@ namespace OctovanAPI.Controllers
         [HttpPost]
         public IActionResult AssignDriverToTask([FromBody] TaskIdAndDriverId ids)
         {
-            _dataAccess.UpdateTaskAddDriver(ids.TaskId, ids.DriverId);
-            return Ok();
+            if (_dataAccess.IsDriverExistByDriverId(ids.DriverId))
+            {
+                _dataAccess.UpdateTaskAddDriver(ids.TaskId, ids.DriverId);
+                return Ok();
+            }
+            return BadRequest();
         }
-        
+
         [HttpGet]
         public IActionResult TasksOfDriver([FromQuery] int driverId)
         {
-            var taasks = _dataAccess.GetTasksOfDriver(driverId);
-            return Ok(taasks);
+            if (_dataAccess.IsDriverExistByDriverId(driverId))
+            {
+                var tasks = _dataAccess.GetTasksOfDriver(driverId);
+                return Ok(tasks);
+            }
+            return BadRequest();
         }
 
         // task/newsfeed ? userId -> returns list of tasks from drivers that user is following in chronological order
@@ -129,7 +148,7 @@ namespace OctovanAPI.Controllers
                 }
             }
             // listeyi createdAt e göre azalan sırada sırala
-            var allTasksOrdered = allTasks.OrderByDescending(x=>x.CreatedAt);
+            var allTasksOrdered = allTasks.OrderByDescending(x => x.CreatedAt);
             return Ok(allTasksOrdered);
         }
 
@@ -137,23 +156,31 @@ namespace OctovanAPI.Controllers
         [HttpGet]
         public IActionResult TotalLikesOfTask([FromQuery] int taskId)
         {
-           int totalLikes = _dataAccess.GetTotalLikesOfTask(taskId);
-           return Ok(new { totalLikes = totalLikes, taskId = taskId});
+            if (_dataAccess.IsTaskExistById(taskId))
+            {
+                int totalLikes = _dataAccess.GetTotalLikesOfTask(taskId);
+                return Ok(new { totalLikes = totalLikes, taskId = taskId });
+            }
+            return BadRequest();
         }
 
         // task/deletetask ? taskid : 2
         [HttpDelete]
         public IActionResult DeleteTask([FromQuery] int taskId)
         {
-            _dataAccess.DeleteTaskByTaskId(taskId);
-            _blobService.DeleteContainer(taskId.ToString());
-            return Ok();
+            if (_dataAccess.IsTaskExistById(taskId))
+            {
+                _dataAccess.DeleteTaskByTaskId(taskId);
+                _blobService.DeleteContainer(taskId.ToString());
+                return Ok();
+            }
+            return BadRequest();
         }
 
-       // task/getallinformationByGivenTaskIds { listoftaskid }  returns: foreach of id, create nested objects as declaterd. and return List<DetailedInformationOfTask> object
-       // assume given taskids are uniqe ( so, no worries about this case )
-       // must return a list of tasks in the same order as taskIds
-       // place null if task is not exist
+        // task/getallinformationByGivenTaskIds { listoftaskid }  returns: foreach of id, create nested objects as declaterd. and return List<DetailedInformationOfTask> object
+        // assume given taskids are uniqe ( so, no worries about this case )
+        // must return a list of tasks in the same order as taskIds
+        // place null if task is not exist
         [HttpPost]
         public async Task<IActionResult> AllInformationByGivenTaskIds([FromBody] ListOfTaskIdAndUserId ids)
         {
@@ -166,14 +193,8 @@ namespace OctovanAPI.Controllers
                 DriverModel driver = _dataAccess.GetDriver(task.DriverId);
                 UserModel user = _dataAccess.GetUser(task.UserId);
                 List<string> imageUrls = (List<string>)await _blobService.ListBlobsUrlAsync(taskId.ToString());
-                var detailedTask = new DetailedInformationOfTask
-                {
-                    TaskId = taskId,
-                    Driver = new DetailedDriver { Id= task.DriverId, FullName=driver.FullName , PhoneNumber= driver.PhoneNumber,Followed= isFollowed },
-                    User = new DetailedUser { Id= task.UserId,  FullName= user.FullName , PhoneNumber=user.PhoneNumber },
-                    Task = new DetailedTask { Id= task.Id , AssignedDriver = task.DriverId, CreatedAt = task.CreatedAt, Images = imageUrls, Liked = isLiked, Owner = ids.UserId }
-                };
-                detailedInformationOfTasks.Add(detailedTask);
+                var detailedInfo = new GenerateDetailedInformationOfTaskObject(); // helper
+                detailedInformationOfTasks.Add(detailedInfo.Generate(driver, user, task, imageUrls, isFollowed, isLiked));
             }
             return Ok(detailedInformationOfTasks);
         }

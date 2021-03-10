@@ -27,14 +27,6 @@ namespace OctovanAPI.Controllers
             return Ok(new { userId = userId });
         }
 
-        [HttpDelete]
-        public IActionResult DeleteUser([FromQuery] int userId)
-        {
-            _dataAccess.DeleteAllTasksOfUser(userId);
-            _dataAccess.DeleteUser(userId);
-            return Ok();
-        }
-
         [HttpGet]
         public IActionResult GetAllUsers()
         {

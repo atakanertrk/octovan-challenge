@@ -48,32 +48,6 @@ namespace OctovanAPI.DataAccess
             }
         }
 
-        public void DeleteUser(int id)
-        {
-            using (IDbConnection cnn = new SqlConnection(_conStr))
-            {
-                var p = new DynamicParameters();
-                p.Add("@Id", id);
-
-                string sql = "DELETE FROM Users WHERE Id=@Id;";
-
-                cnn.Execute(sql, p);
-            }
-        }
-
-        public void DeleteDriver(int id)
-        {
-            using (IDbConnection cnn = new SqlConnection(_conStr))
-            {
-                var p = new DynamicParameters();
-                p.Add("@Id", id);
-
-                string sql = "DELETE FROM Drivers WHERE Id=@Id;";
-
-                cnn.Execute(sql, p);
-            }
-        }
-
         public List<UserModel> GetAllUsers()
         {
             using (IDbConnection cnn = new SqlConnection(_conStr))
@@ -129,6 +103,41 @@ namespace OctovanAPI.DataAccess
                 return result;
             }
         }
+        public bool IsDriverExistByDriverId(int driverId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@DriverId", driverId);
+
+                string sql = "SELECT COUNT(*) FROM Drivers WHERE Id=@DriverId;";
+
+                int result = cnn.Query<int>(sql, p).ToList().First();
+                if (result == 0)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        public bool IsTaskExistById(int taskId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@TaskId", taskId);
+
+                string sql = "SELECT COUNT(*) FROM Tasks WHERE Id=@TaskId;";
+
+                int result = cnn.Query<int>(sql, p).ToList().First();
+                if (result == 0)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
 
         public int InsertNewTask(TaskModel task)
         {
@@ -145,21 +154,7 @@ namespace OctovanAPI.DataAccess
             }
         }
 
-        /// <summary>
-        /// deletes all tasks which includes given UserId
-        /// </summary>
-        public void DeleteAllTasksOfUser(int userId)
-        {
-            using (IDbConnection cnn = new SqlConnection(_conStr))
-            {
-                var p = new DynamicParameters();
-                p.Add("@UserId", userId);
 
-                string sql = "DELETE FROM Tasks WHERE UserId=@UserId;";
-
-                cnn.Execute(sql, p);
-            }
-        }
         /// <summary>
         /// Deletes records in Tasks by given taskId, also deletes records from LikesOfTasks via TaskId
         /// </summary>
@@ -170,7 +165,7 @@ namespace OctovanAPI.DataAccess
                 var p = new DynamicParameters();
                 p.Add("@TaskId", taskId);
 
-                string sql = "DELETE FROM Tasks WHERE Id=@TaskId; DELETE FROM LikesOfTasks WHERE TaskId=@TaskId;";
+                string sql = " DELETE FROM LikesOfTasks WHERE TaskId=@TaskId; DELETE FROM Tasks WHERE Id=@TaskId;";
 
                 cnn.Execute(sql, p);
             }
@@ -212,7 +207,7 @@ namespace OctovanAPI.DataAccess
             {
                 string sql = "SELECT * FROM Tasks";
                 var result = cnn.Query<TaskModel>(sql).ToList();
-                return result;                
+                return result;
             }
         }
         /// <summary>
@@ -226,7 +221,7 @@ namespace OctovanAPI.DataAccess
                 p.Add("@UserId", ids.UserId);
                 p.Add("@DriverId", ids.DriverId);
                 string sql = "INSERT INTO DriversThatUserFollowed (UserId,DriverId) VALUES (@UserId,@DriverId);";
-                cnn.Execute(sql,p);
+                cnn.Execute(sql, p);
             }
         }
         /// <summary>
@@ -250,7 +245,7 @@ namespace OctovanAPI.DataAccess
             {
                 var p = new DynamicParameters();
                 p.Add("@TaskId", taskId);
-                string sql = "SELECT * FROM Tasks WHERE TaskId=@TaskId;";
+                string sql = "SELECT * FROM Tasks WHERE Id=@TaskId;";
                 var result = cnn.Query<TaskModel>(sql, p).ToList().FirstOrDefault();
                 return result;
             }
@@ -275,7 +270,7 @@ namespace OctovanAPI.DataAccess
             {
                 var p = new DynamicParameters();
                 p.Add("@DriverId", driverId);
-                string sql = "SELECT * FROM Drivers WHERE DriverId=@DriverId;";
+                string sql = "SELECT * FROM Drivers WHERE Id=@DriverId;";
                 var result = cnn.Query<DriverModel>(sql, p).ToList().FirstOrDefault();
                 return result;
             }
@@ -286,7 +281,7 @@ namespace OctovanAPI.DataAccess
             {
                 var p = new DynamicParameters();
                 p.Add("@UserId", userId);
-                string sql = "SELECT * FROM Users WHERE UserId=@UserId;";
+                string sql = "SELECT * FROM Users WHERE Id=@UserId;";
                 var result = cnn.Query<UserModel>(sql, p).ToList().FirstOrDefault();
                 return result;
             }
@@ -312,7 +307,7 @@ namespace OctovanAPI.DataAccess
                 p.Add("@TaskId", ids.TaskId);
                 p.Add("@UserId", ids.UserId);
                 string sql = "INSERT INTO LikesOfTasks (TaskId,UserId) VALUES (@TaskId,@UserId);";
-                cnn.Execute(sql,p);
+                cnn.Execute(sql, p);
             }
         }
         public int GetTotalLikesOfTask(int taskId)

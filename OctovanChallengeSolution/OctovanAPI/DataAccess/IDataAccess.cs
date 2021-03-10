@@ -7,13 +7,20 @@ namespace OctovanAPI.DataAccess
     public interface IDataAccess
     {
         void DeleteAllTasksOfDriver(int driverId);
-        void DeleteAllTasksOfUser(int userId);
-        void DeleteDriver(int id);
         void DeleteTaskByTaskId(int taskId);
-        void DeleteUser(int id);
         List<DriverModel> GetAllDrivers();
+        List<TaskModel> GetAllTasks();
         List<UserModel> GetAllUsers();
+        DriverModel GetDriver(int driverId);
+        TaskModel GetTask(int taskId);
+        List<TaskModel> GetTasksOfDriver(int driverId);
+        int GetTotalLikesOfTask(int taskId);
+        UserModel GetUser(int userId);
+        List<int> GetUsersFollowedDriverIds(int userId);
+        List<int> GetUsersLikedTaskIds(int userId);
         int InsertDriver(DriverDTO driver);
+        void InsertFollow(UserIdAndDriverId ids);
+        void InsertLikeToLikesOfTasks(TaskIdAndUserId ids);
         int InsertNewTask(TaskModel task);
         int InsertUser(UserDTO user);
         int IsDriverExistByPhoneNumber(string phoneNumber);
