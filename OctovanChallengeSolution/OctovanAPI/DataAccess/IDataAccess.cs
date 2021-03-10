@@ -23,7 +23,9 @@ namespace OctovanAPI.DataAccess
         void InsertLikeToLikesOfTasks(TaskIdAndUserId ids);
         int InsertNewTask(TaskModel task);
         int InsertUser(UserDTO user);
+        bool IsDriverExistByDriverId(int driverId);
         int IsDriverExistByPhoneNumber(string phoneNumber);
+        bool IsTaskExistById(int taskId);
         int IsUserExistByPhoneNumber(string phoneNumber);
         void UpdateTaskAddDriver(int taskId, int driverId);
     }
