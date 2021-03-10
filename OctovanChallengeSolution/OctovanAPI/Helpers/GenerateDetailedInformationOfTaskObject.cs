@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using OctovanAPI.DataAccess;
 using OctovanAPI.Models;
 using OctovanAPI.ModelsDTO;
 
@@ -9,11 +11,18 @@ namespace OctovanAPI.Helpers
 {
     public class GenerateDetailedInformationOfTaskObject
     {
-        public DetailedInformationOfTask Generate(DriverModel driver, UserModel user, TaskModel task, List<string> imageUrls, bool isFollowed, bool isLiked)
+        IDataAccess _dataAccess;
+        public GenerateDetailedInformationOfTaskObject(IDataAccess dataAccess)
+        {
+            _dataAccess = dataAccess;
+        }
+        public DetailedInformationOfTask Generate(DriverModel driver, UserModel user, TaskModel task, List<string> imageUrls)
         {
             var detailedInformationOfTasks = new DetailedInformationOfTask();
             if (driver != null)
             {
+                bool isLiked = _dataAccess.GetUsersLikedTaskIds(user.Id).Contains(task.Id);
+                bool isFollowed = _dataAccess.GetUsersFollowedDriverIds(user.Id).Contains(driver.Id);
                 var detailedTask = new DetailedInformationOfTask
                 {
                     TaskId = task.Id,
@@ -25,6 +34,7 @@ namespace OctovanAPI.Helpers
             }
             else
             {
+                bool isLiked = _dataAccess.GetUsersLikedTaskIds(user.Id).Contains(task.Id);
                 var detailedTask = new DetailedInformationOfTask
                 {
                     TaskId = task.Id,

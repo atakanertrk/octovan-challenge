@@ -187,14 +187,19 @@ namespace OctovanAPI.Controllers
             var detailedInformationOfTasks = new List<DetailedInformationOfTask>();
             foreach (int taskId in ids.TaskIds)
             {
-                bool isFollowed = _dataAccess.GetUsersFollowedDriverIds(ids.UserId).Contains(taskId);
-                bool isLiked = _dataAccess.GetUsersLikedTaskIds(ids.UserId).Contains(taskId);
-                TaskModel task = _dataAccess.GetTask(taskId);
-                DriverModel driver = _dataAccess.GetDriver(task.DriverId);
-                UserModel user = _dataAccess.GetUser(task.UserId);
-                List<string> imageUrls = (List<string>)await _blobService.ListBlobsUrlAsync(taskId.ToString());
-                var detailedInfo = new GenerateDetailedInformationOfTaskObject(); // helper
-                detailedInformationOfTasks.Add(detailedInfo.Generate(driver, user, task, imageUrls, isFollowed, isLiked));
+                if (_dataAccess.IsTaskExistById(taskId) == false)
+                {
+                    detailedInformationOfTasks.Add(null);
+                }
+                else
+                {
+                    TaskModel task = _dataAccess.GetTask(taskId);
+                    DriverModel driver = _dataAccess.GetDriver(task.DriverId);
+                    UserModel user = _dataAccess.GetUser(task.UserId);
+                    List<string> imageUrls = (List<string>)await _blobService.ListBlobsUrlAsync(taskId.ToString());
+                    var detailedInfo = new GenerateDetailedInformationOfTaskObject(_dataAccess); // helper
+                    detailedInformationOfTasks.Add(detailedInfo.Generate(driver, user, task, imageUrls));
+                }
             }
             return Ok(detailedInformationOfTasks);
         }

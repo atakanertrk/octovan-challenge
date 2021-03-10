@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using OctovanAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,16 @@ namespace OctovanAPI
 
             services.AddControllers();
 
+            services.AddMvc();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });
+
             services.AddSingleton(x=>new BlobServiceClient(Configuration.GetValue<string>("ConnectionStrings:AzureBlobStorageConnectionString")));
             services.AddSingleton<IBlobService, BlobService>();
         }
@@ -57,6 +68,13 @@ namespace OctovanAPI
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API");
+            });
 
             app.UseEndpoints(endpoints =>
             {
