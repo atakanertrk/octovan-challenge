@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 using OctovanAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace OctovanAPI
@@ -27,7 +29,13 @@ namespace OctovanAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().Build());
+            });
+
             services.AddControllers();
+
             services.AddSingleton(x=>new BlobServiceClient(Configuration.GetValue<string>("ConnectionStrings:AzureBlobStorageConnectionString")));
             services.AddSingleton<IBlobService, BlobService>();
         }
@@ -40,7 +48,11 @@ namespace OctovanAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors("CorsPolicy");
+
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 

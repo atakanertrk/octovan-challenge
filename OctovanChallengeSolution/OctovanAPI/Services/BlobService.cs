@@ -35,6 +35,12 @@ namespace OctovanAPI.Services
             await blobClient.DeleteIfExistsAsync();
         }
 
+        public async Task DeleteContainer(string containerName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient("taskid-" + containerName);
+            await containerClient.DeleteAsync();
+        }
+
         public async Task<IEnumerable<string>> ListBlobsAsync(string containerName)
         {
             string container = "taskid-" + containerName;

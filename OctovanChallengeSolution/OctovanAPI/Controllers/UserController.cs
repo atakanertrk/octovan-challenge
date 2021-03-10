@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using OctovanAPI.DataAccess;
+using OctovanAPI.Models;
 using OctovanAPI.ModelsDTO;
 using System;
 using System.Collections.Generic;
@@ -55,7 +56,28 @@ namespace OctovanAPI.Controllers
             }
             return BadRequest();
         }
-      
-       
+
+        [HttpPost]
+        public IActionResult FollowDriver([FromBody] UserIdAndDriverId ids)
+        {
+            if (ids.DriverId == 0 || ids.UserId == 0)
+            {
+                return BadRequest();
+            }
+            _dataAccess.InsertFollow(ids);
+            return Ok();
+        }
+
+        // user/LikeTaskByTaskId  { taskid : 2 , userid : 4 }
+        [HttpPost]
+        public IActionResult LikeTheTask([FromBody] TaskIdAndUserId ids)
+        {
+            if (ids.TaskId == 0 || ids.UserId == 0)
+            {
+                return BadRequest();
+            }
+            _dataAccess.InsertLikeToLikesOfTasks(ids);
+            return Ok();
+        }
     }
 }

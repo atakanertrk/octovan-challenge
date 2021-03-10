@@ -160,15 +160,17 @@ namespace OctovanAPI.DataAccess
                 cnn.Execute(sql, p);
             }
         }
-
+        /// <summary>
+        /// Deletes records in Tasks by given taskId, also deletes records from LikesOfTasks via TaskId
+        /// </summary>
         public void DeleteTaskByTaskId(int taskId)
         {
             using (IDbConnection cnn = new SqlConnection(_conStr))
             {
                 var p = new DynamicParameters();
-                p.Add("@Id", taskId);
+                p.Add("@TaskId", taskId);
 
-                string sql = "DELETE FROM Tasks WHERE Id=@Id;";
+                string sql = "DELETE FROM Tasks WHERE Id=@TaskId; DELETE FROM LikesOfTasks WHERE TaskId=@TaskId;";
 
                 cnn.Execute(sql, p);
             }
@@ -204,6 +206,124 @@ namespace OctovanAPI.DataAccess
                 cnn.Execute(sql, p);
             }
         }
+        public List<TaskModel> GetAllTasks()
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                string sql = "SELECT * FROM Tasks";
+                var result = cnn.Query<TaskModel>(sql).ToList();
+                return result;                
+            }
+        }
+        /// <summary>
+        /// ids.UserId is following ids.DriverId
+        /// </summary>
+        public void InsertFollow(UserIdAndDriverId ids)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@UserId", ids.UserId);
+                p.Add("@DriverId", ids.DriverId);
+                string sql = "INSERT INTO DriversThatUserFollowed (UserId,DriverId) VALUES (@UserId,@DriverId);";
+                cnn.Execute(sql,p);
+            }
+        }
+        /// <summary>
+        /// Returns list of DriverId, that user is followed
+        /// </summary>
+        public List<int> GetUsersFollowedDriverIds(int userId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@UserId", userId);
+                string sql = "SELECT DriverId FROM DriversThatUserFollowed WHERE UserId=@UserId;";
+                var result = cnn.Query<int>(sql, p).ToList();
+                return result;
+            }
+        }
 
+        public TaskModel GetTask(int taskId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@TaskId", taskId);
+                string sql = "SELECT * FROM Tasks WHERE TaskId=@TaskId;";
+                var result = cnn.Query<TaskModel>(sql, p).ToList().FirstOrDefault();
+                return result;
+            }
+        }
+
+        public List<int> GetUsersLikedTaskIds(int userId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@UserId", userId);
+                string sql = "SELECT TaskId FROM LikesOfTasks WHERE UserId=@UserId;";
+                var result = cnn.Query<int>(sql, p).ToList();
+                return result;
+            }
+        }
+
+
+        public DriverModel GetDriver(int driverId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@DriverId", driverId);
+                string sql = "SELECT * FROM Drivers WHERE DriverId=@DriverId;";
+                var result = cnn.Query<DriverModel>(sql, p).ToList().FirstOrDefault();
+                return result;
+            }
+        }
+        public UserModel GetUser(int userId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@UserId", userId);
+                string sql = "SELECT * FROM Users WHERE UserId=@UserId;";
+                var result = cnn.Query<UserModel>(sql, p).ToList().FirstOrDefault();
+                return result;
+            }
+        }
+
+
+        public List<TaskModel> GetTasksOfDriver(int driverId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@DriverId", driverId);
+                string sql = "SELECT * FROM Tasks WHERE DriverId=@DriverId;";
+                var result = cnn.Query<TaskModel>(sql, p).ToList();
+                return result;
+            }
+        }
+        public void InsertLikeToLikesOfTasks(TaskIdAndUserId ids)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@TaskId", ids.TaskId);
+                p.Add("@UserId", ids.UserId);
+                string sql = "INSERT INTO LikesOfTasks (TaskId,UserId) VALUES (@TaskId,@UserId);";
+                cnn.Execute(sql,p);
+            }
+        }
+        public int GetTotalLikesOfTask(int taskId)
+        {
+            using (IDbConnection cnn = new SqlConnection(_conStr))
+            {
+                var p = new DynamicParameters();
+                p.Add("@TaskId", taskId);
+                string sql = "SELECT COUNT(*) FROM LikesOfTasks WHERE TaskId=@TaskId;";
+                return cnn.Query<int>(sql, p).ToList().FirstOrDefault();
+            }
+        }
     }
 }

@@ -5,13 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.8.0" />
-    <PackageReference Include="Dapper" Version="2.0.78" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <Compile Remove="temp\**" />
+    <Content Remove="temp\**" />
+    <EmbeddedResource Remove="temp\**" />
+    <None Remove="temp\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="temp\" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.8.0" />
+    <PackageReference Include="Dapper" Version="2.0.78" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
 

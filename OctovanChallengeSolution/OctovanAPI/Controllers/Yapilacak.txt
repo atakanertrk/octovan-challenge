@@ -1,0 +1,26 @@
+﻿
+
+
+uygulamada olmayan konular
+- kapsamlı data validation
+- authentication
+- transaction
+- stored procedure ve verimli sql sorguları
+
+
+
+user/followdriver     { userid: 2 , driverid : 4 }
+task/tasksofdriver     ? driverid : 2
+task/newsfeed ? userId -> returns list of tasks from drivers that user is following in chronological order
+
+user/LikeTaskByTaskId  { taskid : 2 , userid : 4 }
+task/GetTotalLikesOfTask ? taskid : 3 returns int
+
+task/deletetask ? taskid : 2
+
+task/getallinformationByGivenTaskIds { listoftaskid }  returns foreach of id, create nested objects as declaterd. and return List<DetailedInformationOfTask> object
+
+
+
+
+unique, foreign keys, two filed declares unique
