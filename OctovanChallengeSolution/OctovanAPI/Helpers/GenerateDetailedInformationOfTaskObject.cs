@@ -16,13 +16,13 @@ namespace OctovanAPI.Helpers
         {
             _dataAccess = dataAccess;
         }
-        public DetailedInformationOfTask Generate(DriverModel driver, UserModel user, TaskModel task, List<string> imageUrls)
+        public DetailedInformationOfTask Generate(DriverModel driver, UserModel user, TaskModel task, List<string> imageUrls, int userId)
         {
             var detailedInformationOfTasks = new DetailedInformationOfTask();
             if (driver != null)
             {
-                bool isLiked = _dataAccess.GetUsersLikedTaskIds(user.Id).Contains(task.Id);
-                bool isFollowed = _dataAccess.GetUsersFollowedDriverIds(user.Id).Contains(driver.Id);
+                bool isLiked = _dataAccess.GetUsersLikedTaskIds(userId).Contains(task.Id);
+                bool isFollowed = _dataAccess.GetUsersFollowedDriverIds(userId).Contains(driver.Id);
                 var detailedTask = new DetailedInformationOfTask
                 {
                     TaskId = task.Id,
@@ -34,7 +34,7 @@ namespace OctovanAPI.Helpers
             }
             else
             {
-                bool isLiked = _dataAccess.GetUsersLikedTaskIds(user.Id).Contains(task.Id);
+                bool isLiked = _dataAccess.GetUsersLikedTaskIds(userId).Contains(task.Id);
                 var detailedTask = new DetailedInformationOfTask
                 {
                     TaskId = task.Id,

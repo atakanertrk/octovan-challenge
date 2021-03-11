@@ -185,7 +185,7 @@ namespace OctovanAPI.Controllers
         public async Task<IActionResult> AllInformationByGivenTaskIds([FromBody] ListOfTaskIdAndUserId ids)
         {
             var detailedInformationOfTasks = new List<DetailedInformationOfTask>();
-            foreach (int taskId in ids.TaskIds)
+            foreach (int taskId in ids.TaskIds) 
             {
                 if (_dataAccess.IsTaskExistById(taskId) == false)
                 {
@@ -198,7 +198,7 @@ namespace OctovanAPI.Controllers
                     UserModel user = _dataAccess.GetUser(task.UserId);
                     List<string> imageUrls = (List<string>)await _blobService.ListBlobsUrlAsync(taskId.ToString());
                     var detailedInfo = new GenerateDetailedInformationOfTaskObject(_dataAccess); // helper
-                    detailedInformationOfTasks.Add(detailedInfo.Generate(driver, user, task, imageUrls));
+                    detailedInformationOfTasks.Add(detailedInfo.Generate(driver, user, task, imageUrls,ids.UserId));
                 }
             }
             return Ok(detailedInformationOfTasks);
@@ -212,26 +212,26 @@ namespace OctovanAPI.Controllers
             List<TaskModel> listOfTasks1 = new List<TaskModel>();
             listOfTasks1.Add(new TaskModel { Id = 0, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 2 });
             listOfTasks1.Add(new TaskModel { Id = 2, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 5 });
-            listOfTasks1.Add(new TaskModel { Id = 3, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 20 });
-            listOfTasks1.Add(new TaskModel { Id = 13, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 20 });
-            listOfTasks1.Add(new TaskModel { Id = 33, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 28 });
-            listOfTasks1.Add(new TaskModel { Id = 6, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 35 });
+            listOfTasks1.Add(new TaskModel { Id = 8, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 8 });
+            listOfTasks1.Add(new TaskModel { Id = 3, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 8 });
+            listOfTasks1.Add(new TaskModel { Id = 5, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 8 });
+            listOfTasks1.Add(new TaskModel { Id = 13, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 10 });
+            listOfTasks1.Add(new TaskModel { Id = 33, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 15 }); // 38
+            listOfTasks1.Add(new TaskModel { Id = 6, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 25 });  // 45
             
             listOfListOfTasks.Add(listOfTasks1);
 
             List<TaskModel> listOfTasks2 = new List<TaskModel>();
-            listOfTasks2.Add(new TaskModel { Id = 5, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 3 });
-            listOfTasks2.Add(new TaskModel { Id = 8, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 7 });
-            listOfTasks2.Add(new TaskModel { Id = 9, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 20 });
-            listOfTasks2.Add(new TaskModel { Id = 10, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 20 });
-            listOfTasks2.Add(new TaskModel { Id = 1, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 20 });
-            listOfTasks2.Add(new TaskModel { Id = 22, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 20 });
-            listOfTasks2.Add(new TaskModel { Id = 12, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 28 });
+            listOfTasks2.Add(new TaskModel { Id = 5, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 34 });
+            listOfTasks2.Add(new TaskModel { Id = 8, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 35 });
+            listOfTasks2.Add(new TaskModel { Id = 9, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 36 });
+            listOfTasks2.Add(new TaskModel { Id = 10, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 40 });
+            listOfTasks2.Add(new TaskModel { Id = 1, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 48 });
+            listOfTasks2.Add(new TaskModel { Id = 22, Description = "test2", UserId = 1, DriverId = 1, CreatedAt = 50 });
             listOfListOfTasks.Add(listOfTasks2);
 
-
             MergeTasksHelper mergeHelper = new MergeTasksHelper(listOfListOfTasks);
-            return Ok(mergeHelper.MergeManually());
+            return Ok(mergeHelper.MergeManuallyBubbleSort());
         }
     }
 }
