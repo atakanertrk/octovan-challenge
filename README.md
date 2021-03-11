@@ -3,8 +3,6 @@
 * MSSql Server
 * Dapper
 
-# Octovan-Challenge
-
 ## DB
 <img src="https://github.com/atakanertrk/Octovan-Challenge/blob/main/images/dbschema.png" />
 
@@ -14,6 +12,6 @@
 ## Swagger - endpoints
 <img src="https://github.com/atakanertrk/Octovan-Challenge/blob/main/images/swagger.png" width="40%" />
 
-## Challenge
+# Follow the API endpoints to see the soulition steps of challenges
 <img src="https://github.com/atakanertrk/Octovan-Challenge/blob/main/images/challenge.png" />
  
