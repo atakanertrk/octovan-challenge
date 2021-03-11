@@ -213,9 +213,10 @@ namespace OctovanAPI.Controllers
             listOfTasks1.Add(new TaskModel { Id = 0, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 2 });
             listOfTasks1.Add(new TaskModel { Id = 2, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 5 });
             listOfTasks1.Add(new TaskModel { Id = 3, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 20 });
+            listOfTasks1.Add(new TaskModel { Id = 13, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 20 });
             listOfTasks1.Add(new TaskModel { Id = 33, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 28 });
             listOfTasks1.Add(new TaskModel { Id = 6, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 35 });
-            listOfTasks1.Add(new TaskModel { Id = 13, Description = "test1", UserId = 1, DriverId = 1, CreatedAt = 20 });
+            
             listOfListOfTasks.Add(listOfTasks1);
 
             List<TaskModel> listOfTasks2 = new List<TaskModel>();
